@@ -1,7 +1,10 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 
-export default function ModulePage() {
+interface ModulePageProps {
+  username: string | null;
+}
+
+export default function ModulePage({ username }: ModulePageProps) {
   const { moduleId } = useParams(); // Get module ID from URL
 
   return (
@@ -9,6 +12,7 @@ export default function ModulePage() {
       <h2 className="text-xl font-bold">Module {moduleId}</h2>
       <p className="text-gray-600">This is where module details will be shown.</p>
       <p className="text-gray-500">You can fetch module content based on {moduleId}.</p>
+      <p className="text-gray-700">Logged in as: {username || "Guest"}</p>
     </div>
   );
 }

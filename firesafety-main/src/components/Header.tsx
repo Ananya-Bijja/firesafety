@@ -1,18 +1,17 @@
-import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Flame, Bell, UserCircle } from "lucide-react";
+import { Flame, UserCircle } from "lucide-react";
 
-export default function Header() {
+interface HeaderProps {
+  username: string | null;
+  onLogout: () => void;
+}
+
+export default function Header({ username, onLogout }: HeaderProps) {
   const navigate = useNavigate();
-  const location = useLocation(); // Get the current location
+  const location = useLocation();
 
   const handleProfileClick = () => {
-    // If we're on the Profile page, navigate back to the Dashboard
-    if (location.pathname === "/profile") {
-      navigate("/dashboard");
-    } else {
-      navigate("/profile"); // Otherwise, navigate to Profile
-    }
+    navigate(location.pathname === "/profile" ? "/dashboard" : "/profile");
   };
 
   return (
@@ -24,14 +23,12 @@ export default function Header() {
             <h1 className="text-2xl font-bold">FireSafe AI Training</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="p-2 hover:bg-orange-700 rounded-full">
-              {/* You can add any icon or functionality here */}
-            </button>
-            <button
-              className="p-2 hover:bg-orange-700 rounded-full"
-              onClick={handleProfileClick} // Handle profile click
-            >
+            <span className="font-medium">{username ?? "Guest"}</span>
+            <button className="p-2 hover:bg-orange-700 rounded-full" onClick={handleProfileClick}>
               <UserCircle size={24} />
+            </button>
+            <button className="p-2 bg-red-500 hover:bg-red-700 text-white rounded" onClick={onLogout}>
+              Logout
             </button>
           </div>
         </div>

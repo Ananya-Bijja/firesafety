@@ -232,12 +232,11 @@
 
 // export default App;
 
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
 import TrainingModules from "./components/TrainingModules";
-import SimulationScenarios from "./components/SimulationScenarios";
 import ModulePage from "./pages/ModulePage";
 import FireSafetyBasics from "./pages/FireSafetyBasics";
 import FireEquipmentTraining from "./pages/FireEquipmentTraining";
@@ -248,9 +247,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Loading from "./components/Loading";
-import type { TrainingModule, SimulationScenario, UserProgress } from "./types";
+import type { TrainingModule, UserProgress } from "./types";
 
-// 🔥 API Base URL (Move this to a config file in future)
 const API_BASE_URL = "http://localhost:5000/api";
 
 const mockModules: TrainingModule[] = [
@@ -259,12 +257,6 @@ const mockModules: TrainingModule[] = [
   { id: "3", title: "Fire Equipment Training", description: "Learn to use fire extinguishers", duration: 60, completed: false },
   { id: "4", title: "Evacuation Protocols", description: "Master the hotel evacuation procedures", duration: 40, completed: false },
   { id: "5", title: "Guest Safety Management", description: "Ensure guest safety during emergencies", duration: 50, completed: false },
-];
-
-const mockScenarios: SimulationScenario[] = [
-  { id: "1", title: "Kitchen Fire Response", description: "Practice responding to a fire in the hotel kitchen", difficulty: "beginner" },
-  { id: "2", title: "Guest Room Emergency", description: "Handle a fire emergency in a guest room", difficulty: "intermediate" },
-  { id: "3", title: "Full Building Evacuation", description: "Coordinate a complete hotel evacuation", difficulty: "advanced" },
 ];
 
 function App() {
@@ -279,7 +271,6 @@ function App() {
   const [modules, setModules] = useState<TrainingModule[]>(mockModules);
   const navigate = useNavigate();
 
-  // 🔥 Fetch username from localStorage on mount
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
@@ -288,7 +279,6 @@ function App() {
     }
   }, []);
 
-  // 🔥 Fetch User Progress from API
   const fetchUserProgress = async (name: string) => {
     setLoading(true);
     try {
@@ -320,7 +310,6 @@ function App() {
     }
   };
 
-  // 🔥 Handle Module Completion & Update Progress
   const handleModuleCompletion = async (moduleId: string, passed: boolean) => {
     if (!passed) return;
 
@@ -333,20 +322,18 @@ function App() {
 
       if (!response.ok) throw new Error("Failed to update progress");
 
-      fetchUserProgress(username!); // Refresh progress after updating
+      fetchUserProgress(username!);
     } catch (error) {
       console.error("Error updating progress:", error);
     }
   };
 
-  // 🔥 Handle User Login
   const handleLogin = async (name: string) => {
     localStorage.setItem("username", name);
     setUsername(name);
     fetchUserProgress(name);
   };
 
-  // 🔥 Handle Logout
   const handleLogout = () => {
     localStorage.removeItem("username");
     setUsername(null);
@@ -371,15 +358,18 @@ function App() {
           <Route path="/login" element={username ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />} />
           <Route path="/signup" element={username ? <Navigate to="/dashboard" /> : <Signup />} />
           <Route path="/profile" element={<Profile username={username} onLogout={handleLogout} />} />
-          <Route path="/dashboard" element={username ? (
-              <>
-                <Dashboard username={username} progress={userProgress} />
-                <TrainingModules username={username} modules={modules} />
-                <SimulationScenarios username={username} scenarios={mockScenarios} />
-              </>
-            ) : (
-              <Navigate to="/login" />
-            )}
+          <Route
+            path="/dashboard"
+            element={
+              username ? (
+                <>
+                  <Dashboard username={username} progress={userProgress} />
+                  <TrainingModules username={username} modules={modules} />
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
           />
           <Route path="/module/:moduleId" element={<ModulePage username={username} />} />
           <Route path="/fire-safety-basics" element={<FireSafetyBasics username={username} onComplete={handleModuleCompletion} />} />

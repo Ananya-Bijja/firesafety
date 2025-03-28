@@ -124,10 +124,17 @@
 // export default EvacuationProtocols;
 
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import YouTube from "react-youtube"; // Ensure you installed react-youtube
 
+// Define props interface
+interface EvacuationProtocolsProps {
+  username: string | null;
+  onComplete: (moduleId: string, passed: boolean) => Promise<void>;
+}
+
+// Quiz Questions
 const quizQuestions = [
   {
     question: "What is the first action when hearing a fire alarm?",
@@ -149,7 +156,6 @@ const quizQuestions = [
     ],
     answer: "Crawl on the floor to avoid inhaling smoke",
   },
- 
   {
     question: "What is the safest way to check if a door is safe to open during a fire?",
     options: [
@@ -172,7 +178,8 @@ const quizQuestions = [
   },
 ];
 
-const EvacuationProtocols = () => {
+// Component Function
+export default function EvacuationProtocols({ username, onComplete }: EvacuationProtocolsProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -180,29 +187,27 @@ const EvacuationProtocols = () => {
   const navigate = useNavigate();
 
   const handleAnswer = (selectedOption: string) => {
-    if (selectedOption === quizQuestions[currentQuestion].answer) {
-      setScore(score + 1);
-    }
+    setScore((prevScore) => (selectedOption === quizQuestions[currentQuestion].answer ? prevScore + 1 : prevScore));
+    
     if (currentQuestion < quizQuestions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      setCurrentQuestion((prevQuestion) => prevQuestion + 1);
     } else {
-      if (score + 1 === quizQuestions.length) {
-        setCompleted(true);
-      }
+      const passed = score + 1 === quizQuestions.length;
+      setCompleted(true);
+      onComplete("evacuation-protocols", passed); // Call onComplete function
     }
   };
 
   const videoOptions = {
     height: "360",
     width: "100%",
-    playerVars: {
-      autoplay: 0,
-    },
+    playerVars: { autoplay: 0 },
   };
 
   return (
     <div className="p-6 max-w-3xl mx-auto bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-4">🚨 Evacuation Protocols</h1>
+      {username && <p className="text-gray-600">Hello, {username}! Let's learn how to evacuate safely.</p>}
 
       {/* Embedded YouTube Video */}
       <div className="mb-6">
@@ -214,10 +219,7 @@ const EvacuationProtocols = () => {
 
       {/* Quiz Start Button */}
       {!showQuiz && !completed && (
-        <button
-          onClick={() => setShowQuiz(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
+        <button onClick={() => setShowQuiz(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           🧩 Start Quiz
         </button>
       )}
@@ -246,9 +248,7 @@ const EvacuationProtocols = () => {
           <h2 className="text-xl font-bold">{score === quizQuestions.length ? "✅ Module Completed!" : "❌ Incomplete"}</h2>
           <p className="text-gray-700">Your Score: {score}/{quizQuestions.length}</p>
           {score === quizQuestions.length ? (
-            <div className="mt-4">
-              <p className="text-green-600 font-semibold">🎉 You passed!</p>
-            </div>
+            <p className="text-green-600 font-semibold">🎉 You passed!</p>
           ) : (
             <div className="mt-4">
               <p className="text-red-600 font-semibold">❌ You need to score 100% to pass.</p>
@@ -268,14 +268,9 @@ const EvacuationProtocols = () => {
         </div>
       )}
 
-      <button
-        onClick={() => navigate("/dashboard")}
-        className="mt-6 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
-      >
+      <button onClick={() => navigate("/dashboard")} className="mt-6 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800">
         ⬅ Back to Dashboard
       </button>
     </div>
   );
-};
-
-export default EvacuationProtocols;
+}

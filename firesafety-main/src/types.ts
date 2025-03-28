@@ -18,4 +18,5 @@ export interface UserProgress {
   totalModules: number;
   lastActivity: string;
   score: number;
+  activeSimulations?:number;
 }
